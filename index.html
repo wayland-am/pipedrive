@@ -44,10 +44,10 @@
   .board { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; flex: 1; align-items: flex-start; }
   .column { flex: 1; min-width: 280px; background: #e2e8f0; border-radius: var(--radius); padding: 8px; min-height: 460px; display: flex; flex-direction: column; }
   .column-header { font-weight: bold; font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; color: #475569; border-bottom: 2px solid #cbd5e1; padding-bottom: 4px; }
-  .cards-container { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 400px; }
+  .cards-container { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 400px; padding-bottom: 20px; }
   
   /* Pipedrive-карточки спецтехники */
-  .card { background: var(--sur); border-radius: 6px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border-left: 5px solid var(--gray); position: relative; cursor: grab; touch-action: none; }
+  .card { background: var(--sur); border-radius: 6px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border-left: 5px solid var(--gray); position: relative; cursor: grab; touch-action: none; margin-bottom: 2px; }
   .card-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; padding-right: 20px; color: var(--text); }
   .card-subtitle { font-size: 12px; color: var(--text-m); margin-bottom: 6px; }
   .card-fleet-tag { font-size: 11px; background: #f1f5f9; padding: 4px 6px; border-radius: 4px; margin-bottom: 6px; color: #334155; display: flex; align-items: center; gap: 4px; border-left: 3px solid var(--blue); }
@@ -60,12 +60,10 @@
   .circle-future { background: var(--gray); }
 
   /* Зона деструктивных/архивных действий */
-  .archive-bar { display: none; gap: 10px; margin-bottom: 12px; }
-  .archive-zone { flex: 1; padding: 12px; border-radius: var(--radius); border: 2px dashed #cbd5e1; text-align: center; font-weight: bold; font-size: 13px; color: var(--text-m); }
+  .archive-bar { display: none; gap: 10px; margin-bottom: 12px; height: 60px; }
+  .archive-zone { flex: 1; padding: 16px; border-radius: var(--radius); border: 2px dashed #cbd5e1; text-align: center; font-weight: bold; font-size: 14px; color: var(--text-m); transition: all 0.2s; }
   .archive-zone.won-zone { border-color: var(--green); color: var(--green); }
   .archive-zone.lost-zone { border-color: var(--red); color: var(--red); }
-  .archive-zone.drag-over-won { background: #f0fdf4; }
-  .archive-zone.drag-over-lost { background: #fef2f2; }
 
   /* Модальные окна */
   .modal-backdrop { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15,23,42,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
@@ -90,9 +88,9 @@
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" id="btn-comp" onclick="switchView('comp')"><i class="ti ti-books"></i> 1. База и Парк техники</button>
-  <button class="tab-btn" id="btn-leads" onclick="switchView('leads')"><i class="ti ti-users"></i> 2. Прогрев (Лиды)</button>
-  <button class="tab-btn" id="btn-deals" onclick="switchView('deals')"><i class="ti ti-target"></i> 3. Продажи (Сделки)</button>
+  <button class="tab-btn active" id="btn-comp" onclick="switchView('comp')"><i class="ti ti-books"></i> 1. База и Парк</button>
+  <button class="tab-btn" id="btn-leads" onclick="switchView('leads')"><i class="ti ti-users"></i> 2. Прогрев (<span id="total-l-cnt">0</span>)</button>
+  <button class="tab-btn" id="btn-deals" onclick="switchView('deals')"><i class="ti ti-target"></i> 3. Продажи (<span id="total-d-cnt">0</span>)</button>
 </div>
 
 <div class="api-box">
@@ -102,16 +100,16 @@
 </div>
 
 <div class="legend">
-  <span style="font-weight:700;">Статус контроля отношений:</span>
-  <div class="legend-item"><span class="pipedrive-circle circle-today" style="position:static;"></span> На сегодня</div>
-  <div class="legend-item"><span class="pipedrive-circle circle-future" style="position:static;"></span> Есть задача в будущем</div>
-  <div class="legend-item"><span class="pipedrive-circle circle-overdue" style="position:static;"></span> Просрочен созвон</div>
-  <div class="legend-item"><span class="pipedrive-circle circle-no_task" style="position:static; animation:none;"></span> БРОШЕН (Менеджер забыл про клиента)</div>
+  <span style="font-weight:700;">Статус контроля:</span>
+  <div class="legend-item"><span class="pipedrive-circle circle-today" style="position:static;"></span> Сегодня</div>
+  <div class="legend-item"><span class="pipedrive-circle circle-future" style="position:static;"></span> План есть</div>
+  <div class="legend-item"><span class="pipedrive-circle circle-overdue" style="position:static;"></span> Просрочен</div>
+  <div class="legend-item"><span class="pipedrive-circle circle-no_task" style="position:static; animation:none;"></span> БРОШЕН</div>
 </div>
 
 <div class="archive-bar" id="archive-bar">
-  <div class="archive-zone won-zone" id="won-zone"><i class="ti ti-trophy"></i> Успешное действие</div>
-  <div class="archive-zone lost-zone" id="lost-zone"><i class="ti ti-thumb-down"></i> В архив / Нецелевой</div>
+  <div class="archive-zone won-zone" id="won-zone">🏆 Успешно / Конвертировать</div>
+  <div class="archive-zone lost-zone" id="lost-zone">📁 В архив / Нецелевой</div>
 </div>
 
 <div id="section-comp" class="crm-section active">
@@ -120,27 +118,27 @@
 
 <div id="section-leads" class="crm-section">
   <div class="board">
-    <div class="column"><div class="column-header"><span>Интерес зафиксирован</span> <span id="l-cnt-1">0</span></div><div class="cards-container" id="l-stage-1" data-stage="Новый"></div></div>
-    <div class="column"><div class="column-header"><span>Формируют потребность / Бюджет</span> <span id="l-cnt-2">0</span></div><div class="cards-container" id="l-stage-2" data-stage="В работе"></div></div>
+    <div class="column"><div class="column-header"><span>Новые заходы</span> (<span id="l-cnt-1">0</span>)</div><div class="cards-container" id="l-stage-1" data-stage="New"></div></div>
+    <div class="column"><div class="column-header"><span>В обработке</span> (<span id="l-cnt-2">0</span>)</div><div class="cards-container" id="l-stage-2" data-stage="In Progress"></div></div>
   </div>
 </div>
 
 <div id="section-deals" class="crm-section">
   <div class="board">
-    <div class="column"><div class="column-header"><span>Тех. подбор / ТХ</span> <span id="d-cnt-1">0</span></div><div class="cards-container" id="stage-1" data-stage="Тех. подбор / ТХ"></div></div>
-    <div class="column"><div class="column-header"><span>КП отправлено</span> <span id="d-cnt-2">0</span></div><div class="cards-container" id="stage-2" data-stage="Коммерческое предложение"></div></div>
-    <div class="column"><div class="column-header"><span>Лизинг / Тендер</span> <span id="d-cnt-3">0</span></div><div class="cards-container" id="stage-3" data-stage="Согласование лизинга"></div></div>
+    <div class="column"><div class="column-header"><span>Интерес/Лид</span> (<span id="d-cnt-1">0</span>)</div><div class="cards-container" id="stage-1" data-stage="Lead"></div></div>
+    <div class="column"><div class="column-header"><span>Подбор / ТХ</span> (<span id="d-cnt-2">0</span>)</div><div class="cards-container" id="stage-2" data-stage="Proposal"></div></div>
+    <div class="column"><div class="column-header"><span>Согласование/Лизинг</span> (<span id="d-cnt-3">0</span>)</div><div class="cards-container" id="stage-3" data-stage="Negotiation"></div></div>
   </div>
 </div>
 
 <div class="modal-backdrop" id="company-modal">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-building-community"></i> Новый подрядчик в базу данных</div>
-    <div class="form-group"><label>Название организации (Обязательно)</label><input type="text" id="mc-name" placeholder="ООО АрмДорСтрой"></div>
-    <div class="form-group"><label>Парк техники (Что сейчас эксплуатируют?)</label><input type="text" id="mc-fleet" placeholder="Грейдер CAT 150, 2 экскаватора Komatsu"></div>
-    <div class="form-group"><label>ФИО ЛПР / Должность / Телефон</label><input type="text" id="mc-contact" placeholder="Арам (Главный механик), +374..."></div>
-    <div class="form-group"><label>Регулярность профилактического контроля</label>
-      <select id="mc-seasonality"><option value="Раз в 2 месяца">📞 Контроль раз в 2 месяца (Стабильные)</option><option value="Каждый месяц">🔥 Контроль каждый месяц (Крупные подрядчики)</option></select>
+    <div class="form-group"><label>Название организации</label><input type="text" id="mc-name" placeholder="ООО АрмДорСтрой"></div>
+    <div class="form-group"><label>Парк техники</label><input type="text" id="mc-fleet" placeholder="Грейдер CAT 150 AWD, 2 экскаватора"></div>
+    <div class="form-group"><label>ФИО ЛПР / Телефон</label><input type="text" id="mc-contact" placeholder="Арам, +374..."></div>
+    <div class="form-group"><label>Регулярность контроля</label>
+      <select id="mc-seasonality"><option value="Раз в 2 месяца">📞 Раз в 2 месяца</option><option value="Каждый месяц">🔥 Каждый месяц</option></select>
     </div>
     <div class="modal-actions"><button class="btn-sec" onclick="closeModal('company-modal')">Отмена</button><button onclick="saveNewCompany()">Внести в базу</button></div>
   </div>
@@ -148,26 +146,29 @@
 
 <div class="modal-backdrop" id="details-modal">
   <div class="modal">
-    <div class="modal-title"><i class="ti ti-calendar-event"></i> Взаимодействие с клиентом</div>
+    <div class="modal-title"><i class="ti ti-calendar-event"></i> Детальная информация</div>
     <div id="details-content" style="font-size:13px; margin-bottom: 12px; line-height: 1.5; background: #f8fafc; padding: 10px; border-radius: 6px; border:1px solid var(--bdr);"></div>
     
     <div style="border-top: 1px solid var(--bdr); padding-top: 10px;">
-      <h4 style="margin-bottom:6px; font-size:12px; color:var(--text);"><i class="ti ti-clock"></i> Планирование следующего касания (Pipedrive)</h4>
+      <h4 style="margin-bottom:6px; font-size:12px; color:var(--text);"><i class="ti ti-clock"></i> Поставить задачу / Изменить статус</h4>
       <input type="hidden" id="action-item-id">
       <input type="hidden" id="action-item-type">
-      <div class="form-group"><label>Какое действие требуется?</label>
+      
+      <div class="form-group"><label>Что нужно сделать?</label>
         <select id="m-task-type" onchange="toggleTaskFields(this.value)">
-          <option value="Звонок">📞 Профилактический созвон (Узнать по объектам)</option>
-          <option value="Визит">🤝 Визит в офис / На объект (Укрепление отношений)</option>
-          <option value="ТХ">🔧 Предложить аудит парка / Спецификацию деталей</option>
-          <option value="Перевод в Лиды">🚀 ПОЯВИЛСЯ СЛУХ / ИНТЕРЕС (Перевести в Лиды)</option>
-          <option value="Перевод в Сделки">🔥 ГОРЯЧИЙ ЗАПРОС НА ПОКУПКУ (Открыть Сделку)</option>
+          <option value="Call">📞 Профилактический созвон</option>
+          <option value="Meeting">🤝 Визит на объект / В офис</option>
+          <option value="TA1 Inspection">🔧 Предложить ТА1 инспекцию / Запчасти</option>
+          <option value="To Leads">🚀 ПОЯВИЛСЯ СЛУХ (Перевести в Лиды)</option>
+          <option value="To Deals">🔥 ГОРЯЧИЙ ЗАПРОС (Открыть Сделку)</option>
         </select>
       </div>
-      <div class="form-group" id="group-target-model" style="display:none;"><label>Какая модель техники интересует?</label><input type="text" id="m-target-model" placeholder="Например: Hitachi ZX210-5A"></div>
-      <div class="form-group" id="group-target-amount" style="display:none;"><label>Ориентировочный бюджет ($)</label><input type="number" id="m-target-amount" placeholder="185000"></div>
-      <div class="form-group"><label>Крайний срок (Дедлайн)</label><input type="date" id="m-task-date"></div>
-      <div class="form-group"><label>Суть / Заметка к действию</label><input type="text" id="m-task-text" placeholder="Узнать результаты тендера или поздравить с подрядом..."></div>
+      
+      <div class="form-group" id="group-target-model" style="display:none;"><label>Какая модель техники интересует?</label><input type="text" id="m-target-model" placeholder="Например: Hitachi ZX330-5A"></div>
+      <div class="form-group" id="group-target-amount" style="display:none;"><label>Ориентировочный бюджет ($)</label><input type="number" id="m-target-amount" placeholder="189400"></div>
+      <div class="form-group"><label>Срок (Дедлайн)</label><input type="date" id="m-task-date"></div>
+      <div class="form-group"><label>Комментарий к задаче</label><input type="text" id="m-task-text" placeholder="О чем поговорить / Что передать..."></div>
+      
       <div class="modal-actions"><button class="btn-sec" onclick="closeModal('details-modal')">Закрыть</button><button onclick="savePipedriveTask()">Зафиксировать</button></div>
     </div>
   </div>
@@ -177,16 +178,16 @@
   <div class="modal" style="border-top: 4px solid var(--red);">
     <div class="modal-title" style="color: var(--red);"><i class="ti ti-alert-triangle"></i> Архив проигранной сделки</div>
     <input type="hidden" id="lost-deal-id">
-    <div class="form-group"><label>Какому бренду/конкуренту уступили?</label>
+    <input type="hidden" id="lost-deal-type">
+    <div class="form-group"><label>Кому уступили?</label>
       <select id="m-lost-competitor">
         <option value="Komatsu">Komatsu</option>
-        <option value="Caterpillar (CAT)">Caterpillar (CAT)</option>
-        <option value="Liugong/XCMG">Liugong / XCMG (Китай)</option>
-        <option value="Hitachi">Hitachi</option>
-        <option value="Проект заморожен">Проект заморожен / Нет финансирования</option>
+        <option value="Caterpillar">Caterpillar (CAT)</option>
+        <option value="Liugong/XCMG">Китайские бренды (Liugong/XCMG)</option>
+        <option value="Заморожен">Проект заморожен / Нет лицензии</option>
       </select>
     </div>
-    <div class="form-group"><label>Основная причина упущенной сделки (Детально)</label><textarea id="m-lost-reason" rows="3" placeholder="Конкурент дал б/у технику дешевле или лизинг не одобрил..."></textarea></div>
+    <div class="form-group"><label>Причина упущенной сделки</label><textarea id="m-lost-reason" rows="3" placeholder="Дорого, ушли к китайцам, нет финансирования..."></textarea></div>
     <div class="modal-actions"><button class="btn-danger" onclick="submitLostReason()">Отправить в архив</button></div>
   </div>
 </div>
@@ -195,18 +196,42 @@
 let API_URL = localStorage.getItem('wcrm_url') || '';
 let db = { companies: [], deals: [], tasks: [], leads: [] };
 
-// Стартовая демонстрационная база (Перезапишется данными из твоей таблицы при подключении URL)
+// РЕАЛЬНЫЕ ДАННЫЕ ИЗ ТВОЕЙ ТАБЛИЦЫ ДЛЯ АВТОНОМНОГО СТАРТА
 const demoCompanies = [
-  { id: "C1", name: "ООО ГорШахтИнвест", fleet: "3 экскаватора Komatsu PC200, 1 бульдозер Shantui", contact: "Ваган (Главный механик)", seasonality: "Раз в 2 месяца", notes: "Работают на карьере ổn стабильно. Техника на ходу. Напоминать о себе раз в 2 месяца." },
-  { id: "C2", name: "ЗАО АрмМагистраль", fleet: "Старые грейдеры ДЗ, 1 погрузчик SEM", contact: "Сурен Эдуардович (Директор)", seasonality: "Каждый месяц", notes: "Взяли крупный подряд на ремонт трассы. Машины работают на износ, скоро встанет вопрос обновления парка." }
+  { id: "1780846667100d5m", name: "Tiga-Shin", fleet: "Hitachi ZX330, ZX200", contact: "Тигран", seasonality: "Каждый месяц" },
+  { id: "17808466703328gz", name: "Stone Group", fleet: "Hitachi ZX330, ZX240", contact: "Рубен", seasonality: "Раз в 2 месяца" },
+  { id: "1780846672777jcq", name: "Esend", fleet: "Hitachi ZX330", contact: "Мхитар", seasonality: "Каждый месяц" },
+  { id: "1780846677973ib6", name: "Vanos-Var", fleet: "Hitachi ZX330", contact: "Ваник", seasonality: "Раз в 2 месяца" },
+  { id: "1780846702734w72", name: "MAR Group 1", fleet: "Hitachi ZX470, ZX450", contact: "Петрос Карагозян", seasonality: "Каждый месяц" },
+  { id: "17808467765623ts", name: "Magnum Beton", fleet: "Hitachi ZX240", contact: "Слава", seasonality: "Раз в 2 месяца" }
+];
+
+const demoLeads = [
+  { id: "mq6ghu4m3c85", company: "Lamo", product: "ZX330", status: "New", contact: "Yegish", notes: "Любят САТ. Сломался PC400. Нужен 35т экскаватор." },
+  { id: "mq6kjzdk2thb", company: "Весенняя надежда", product: "ZX330", status: "In Progress", contact: "Нарик", notes: "Интерес к 30-тоннику." }
+];
+
+const demoDeals = [
+  { id: "mq437roo8b36", company: "Tiga-Shin", model: "ZX170W-5A", amount: 185000, stage: "Negotiation" },
+  { id: "mq437tprvccg", company: "Stone Group", model: "ZW310-5A", amount: 240000, stage: "Proposal" },
+  { id: "mq437vj913a9", company: "Esend", model: "ZX330-5A", amount: 203100, stage: "Proposal" },
+  { id: "mq4384qfaplg", company: "Vanos-Var", model: "ZX330-5A", amount: 189400, stage: "Lead" },
+  { id: "mq438ec8m6kw", company: "GTB Holding", model: "ZX330-5A", amount: 189400, stage: "Lead" }
+];
+
+const demoTasks = [
+  { id: "1", deal_id: "1780846672777jcq", title: "Call", due: "2026-06-11", done: "false", text: "Проверить бюджет по Esend" },
+  { id: "2", deal_id: "17808466703328gz", title: "Call", due: "2026-06-10", done: "false", text: "Связаться со Stone Group" },
+  { id: "3", deal_id: "mq438ec8m6kw", title: "Call", due: "2026-07-20", done: "false", text: "Техника нужна к сентябрю 2026" }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+  initSortableBoards();
   if(API_URL) {
     document.getElementById('api-url').value = API_URL;
     loadData();
   } else {
-    db.companies = demoCompanies;
+    db.companies = demoCompanies; db.leads = demoLeads; db.deals = demoDeals; db.tasks = demoTasks;
     renderAll();
   }
 });
@@ -220,7 +245,7 @@ function switchView(view) {
 
 function connectAPI() {
   const url = document.getElementById('api-url').value.trim();
-  if(!url) return alert('Вставьте Web App URL из Google Скриптов!');
+  if(!url) return alert('Вставьте URL!');
   API_URL = url;
   localStorage.setItem('wcrm_url', url);
   loadData();
@@ -238,18 +263,18 @@ async function loadData() {
       db.leads = result.data.leads || [];
     }
   } catch(e) {
-    if(db.companies.length === 0) db.companies = demoCompanies;
+    console.warn("Ошибка синхронизации, включен автономный режим.");
   }
   renderAll();
 }
 
 function calculateItemStatus(id) {
-  const activeTasks = db.tasks.filter(t => String(t.deal_id) === String(id) && String(t.done) !== 'true');
-  if(activeTasks.length === 0) return 'no_task';
-  activeTasks.sort((a,b) => a.due.localeCompare(b.due));
+  const active = db.tasks.filter(t => String(t.deal_id) === String(id) && String(t.done) !== 'true');
+  if(active.length === 0) return 'no_task';
+  active.sort((a,b) => a.due.localeCompare(b.due));
   const today = new Date().toISOString().split('T')[0];
-  if(activeTasks[0].due < today) return 'overdue';
-  if(activeTasks[0].due === today) return 'today';
+  if(active[0].due < today) return 'overdue';
+  if(active[0].due === today) return 'today';
   return 'future';
 }
 
@@ -257,9 +282,9 @@ function renderAll() {
   renderCompanies();
   renderLeadsBoard();
   renderDealsBoard();
+  updateCounters();
 }
 
-// ── 1. ОТРИСОВКА БАЗЫ КОМПАНИЙ ──
 function renderCompanies() {
   const container = document.getElementById('companies-list');
   container.innerHTML = '';
@@ -267,17 +292,13 @@ function renderCompanies() {
     const card = document.createElement('div');
     card.className = 'card';
     const status = calculateItemStatus(c.id);
-    
-    if(status === 'overdue') card.style.borderLeftColor = 'var(--red)';
-    else if(status === 'today') card.style.borderLeftColor = 'var(--green)';
-    else if(status === 'no_task') card.style.borderLeftColor = 'var(--amber)';
-    else card.style.borderLeftColor = 'var(--gray)';
+    card.style.borderLeftColor = status === 'overdue' ? 'var(--red)' : status === 'today' ? 'var(--green)' : status === 'no_task' ? 'var(--amber)' : 'var(--gray)';
     
     card.innerHTML = `
       <div class="card-title">${c.name}</div>
-      <div class="card-subtitle"><i class="ti ti-user-circle"></i> ${c.contact || 'Контакты не указаны'}</div>
-      <div class="card-fleet-tag"><i class="ti ti-shovel"></i> Парк: ${c.fleet || 'Данные о парке отсутствуют'}</div>
-      <div class="card-footer"><span>Цикл: ${c.seasonality || 'Раз в 2 месяца'}</span></div>
+      <div class="card-subtitle"><i class="ti ti-user"></i> ${c.contact || 'Контакты не указаны'}</div>
+      <div class="card-fleet-tag"><i class="ti ti-shovel"></i> Парк: ${c.fleet || 'Уточняется'}</div>
+      <div class="card-footer"><span>Регулярность: ${c.seasonality || 'Раз в 2 месяца'}</span></div>
       <span class="pipedrive-circle circle-${status}"></span>
     `;
     card.onclick = () => openDetailsModal(c, 'company');
@@ -285,149 +306,143 @@ function renderCompanies() {
   });
 }
 
-// ── 2. ОТРИСОВКА КАНБАНА ПРОГРЕВА (ЛИДЫ) ──
-function renderLeadsBoard() {
-  const stages = [
-    { id: 'l-stage-1', name: 'Новый', countId: 'l-cnt-1' },
-    { id: 'l-stage-2', name: 'В работе', countId: 'l-cnt-2' }
-  ];
-  
-  stages.forEach(s => {
-    const el = document.getElementById(s.id); el.innerHTML = '';
-    new Sortable(el, {
-      group: 'leads_group', animation: 140,
-      onStart: () => document.getElementById('archive-bar').style.display = 'flex',
-      onEnd: () => document.getElementById('archive-bar').style.display = 'none',
+function initSortableBoards() {
+  const setupGroup = (containersClass, groupName, dbArrayName, backendField) => {
+    document.querySelectorAll(containersClass).forEach(el => {
+      new Sortable(el, {
+        group: groupName,
+        animation: 150,
+        fallbackOnBody: true,
+        swapThreshold: 0.65,
+        onStart: () => { document.getElementById('archive-bar').style.display = 'flex'; },
+        onEnd: () => { document.getElementById('archive-bar').style.display = 'none'; },
+        onAdd: async (evt) => {
+          const item = db[dbArrayName].find(x => String(x.id) === String(evt.item.id));
+          if(item) {
+            item[backendField] = el.getAttribute('data-stage');
+            updateCounters();
+            if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: dbArrayName, row: item }) });
+          }
+        }
+      });
+    });
+  };
+
+  setupGroup('#section-leads .cards-container', 'leads_group', 'leads', 'status');
+  setupGroup('#section-deals .cards-container', 'deals_group', 'deals', 'stage');
+
+  const setupArchiveZone = (zoneId, groupName, successStage, arrayName) => {
+    new Sortable(document.getElementById(zoneId), {
+      group: groupName,
       onAdd: async (evt) => {
-        const lead = db.leads.find(l => String(l.id) === String(evt.item.id));
-        if(lead) {
-          lead.status = el.getAttribute('data-stage');
-          updateCounters();
-          if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'leads', row: lead }) });
+        const itemId = evt.item.id;
+        evt.item.remove();
+        
+        if(zoneId === 'lost-zone') {
+          document.getElementById('lost-deal-id').value = itemId;
+          document.getElementById('lost-deal-type').value = arrayName;
+          openModal('lost-modal');
+        } else {
+          if(arrayName === 'leads') {
+            const l = db.leads.find(x => String(x.id) === String(itemId));
+            if(l) {
+              l.status = 'Converted';
+              const d = { id: 'D'+Date.now(), company: l.company, model: l.product||'Hitachi', amount: 0, stage: 'Lead', created: new Date().toISOString().split('T')[0] };
+              db.deals.push(d);
+              if(API_URL) {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'leads', row: l }) });
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'deals', row: d }) });
+              }
+              alert('🚀 Лид успешно конвертирован в Сделку!');
+            }
+          } else {
+            const d = db.deals.find(x => String(x.id) === String(itemId));
+            if(d) {
+              d.stage = 'Won';
+              if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'deals', row: d }) });
+              alert('🏆 Сделка успешно выиграна! Спецтехника законтрактована.');
+            }
+          }
+          if(API_URL) loadData(); else renderAll();
         }
       }
     });
-  });
+  };
 
+  setupArchiveZone('won-zone', 'leads_group', 'Converted', 'leads');
+  setupArchiveZone('won-zone', 'deals_group', 'Won', 'deals');
+  setupArchiveZone('lost-zone', 'leads_group', 'Disqualified', 'leads');
+  setupArchiveZone('lost-zone', 'deals_group', 'Lost', 'deals');
+}
+
+function renderLeadsBoard() {
+  document.querySelectorAll('#section-leads .cards-container').forEach(c => c.innerHTML = '');
   db.leads.forEach(l => {
-    if(l.status === 'Converted' || l.status === 'Disqualified' || l.status === 'Архив') return;
-    const target = stages.find(s => s.name === l.status) || stages[0];
+    if(['Converted','Disqualified','Lost'].includes(l.status)) return;
+    const stageId = l.status === 'In Progress' ? 'l-stage-2' : 'l-stage-1';
+    const container = document.getElementById(stageId);
+    if(!container) return;
+    
     const card = document.createElement('div'); card.className = 'card'; card.id = l.id;
     const status = calculateItemStatus(l.id);
-    
     card.innerHTML = `
       <div class="card-title">${l.company}</div>
-      <div class="card-subtitle"><i class="ti ti-trending-up"></i> Потребность: ${l.product || 'Выясняется'}</div>
+      <div class="card-subtitle"><i class="ti ti-trending-up"></i> Потребность: ${l.product || 'Не указана'}</div>
       <div class="card-footer"><span>ЛПР: ${l.contact || '—'}</span></div>
       <span class="pipedrive-circle circle-${status}"></span>
     `;
     card.onclick = () => openDetailsModal(l, 'lead');
-    document.getElementById(target.id).appendChild(card);
+    container.appendChild(card);
   });
-  
-  initArchiveZone('won-zone', 'leads_group', 'Converted');
-  initArchiveZone('lost-zone', 'leads_group', 'Disqualified');
-  updateCounters();
 }
 
-// ── 3. ОТРИСОВКА КАНБАНА ПРОДАЖ (СДЕЛКИ) ──
 function renderDealsBoard() {
-  const stages = [
-    { id: 'stage-1', name: 'Тех. подбор / ТХ', countId: 'd-cnt-1' },
-    { id: 'stage-2', name: 'Коммерческое предложение', countId: 'd-cnt-2' },
-    { id: 'stage-3', name: 'Согласование лизинга', countId: 'd-cnt-3' }
-  ];
-
-  stages.forEach(s => {
-    const el = document.getElementById(s.id); el.innerHTML = '';
-    new Sortable(el, {
-      group: 'deals_group', animation: 140,
-      onStart: () => document.getElementById('archive-bar').style.display = 'flex',
-      onEnd: () => document.getElementById('archive-bar').style.display = 'none',
-      onAdd: async (evt) => {
-        const deal = db.deals.find(d => String(d.id) === String(evt.item.id));
-        if(deal) {
-          deal.stage = el.getAttribute('data-stage');
-          updateCounters();
-          if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'deals', row: deal }) });
-        }
-      }
-    });
-  });
-
+  document.querySelectorAll('#section-deals .cards-container').forEach(c => c.innerHTML = '');
   db.deals.forEach(d => {
-    if(d.stage === 'Won' || d.stage === 'Lost') return;
-    const target = stages.find(s => s.name === d.stage);
-    if(!target) return;
+    if(['Won','Lost','Disqualified'].includes(d.stage)) return;
+    let stageId = 'stage-1';
+    if(d.stage === 'Proposal') stageId = 'stage-2';
+    if(d.stage === 'Negotiation') stageId = 'stage-3';
+    
+    const container = document.getElementById(stageId);
+    if(!container) return;
     
     const card = document.createElement('div'); card.className = 'card'; card.id = d.id;
     const status = calculateItemStatus(d.id);
-    
     card.innerHTML = `
-      <div class="card-title">${d.model || 'Без модели'}</div>
-      <div class="card-subtitle"><i class="ti ti-building"></i> Заказчик: ${d.company}</div>
+      <div class="card-title">${d.model}</div>
+      <div class="card-subtitle"><i class="ti ti-building"></i> ${d.company}</div>
       <div class="card-footer"><strong>$${Number(d.amount || 0).toLocaleString()}</strong></div>
       <span class="pipedrive-circle circle-${status}"></span>
     `;
     card.onclick = () => openDetailsModal(d, 'deal');
-    document.getElementById(target.id).appendChild(card);
-  });
-
-  initArchiveZone('won-zone', 'deals_group', 'Won');
-  initArchiveZone('lost-zone', 'deals_group', 'Lost');
-  updateCounters();
-}
-
-function initArchiveZone(zoneId, groupName, targetStageName) {
-  const el = document.getElementById(zoneId);
-  if(el.sortable_instance) el.sortable_instance.destroy();
-  
-  el.sortable_instance = new Sortable(el, {
-    group: groupName,
-    onAdd: async (evt) => {
-      const itemId = evt.item.id;
-      evt.item.remove();
-      
-      if(targetStageName === 'Lost' || targetStageName === 'Disqualified') {
-        document.getElementById('lost-deal-id').value = itemId;
-        openModal('lost-modal');
-      } else {
-        if(groupName === 'deals_group') {
-          const d = db.deals.find(x => String(x.id) === String(itemId));
-          if(d) { d.stage = 'Won'; if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'deals', row: d }) }); }
-          alert('🔥 Контракт успешно закрыт! Запись внесена в Google Таблицу.');
-        } else {
-          // Если перетащили лид в успешные - конвертируем в сделку
-          const l = db.leads.find(x => String(x.id) === String(itemId));
-          if(l) {
-            l.status = 'Converted';
-            const newDeal = { id: 'D'+Date.now(), company: l.company, model: l.product || 'Техника по спецификации', amount: 0, stage: 'Тех. подбор / ТХ', created: new Date().toISOString().split('T')[0] };
-            db.deals.push(newDeal);
-            if(API_URL) {
-              await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'leads', row: l }) });
-              await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'deals', row: newDeal }) });
-            }
-          }
-          alert('🚀 Клиент созрел. Лид успешно конвертирован в активную Сделку!');
-        }
-        loadData();
-      }
-    }
+    container.appendChild(card);
   });
 }
 
 function updateCounters() {
-  ['l-stage-1', 'l-stage-2'].forEach((id, i) => { const el = document.getElementById(id); if(el) document.getElementById('l-cnt-'+(i+1)).innerText = el.children.length; });
-  ['stage-1', 'stage-2', 'stage-3'].forEach((id, i) => { const el = document.getElementById(id); if(el) document.getElementById('d-cnt-'+(i+1)).innerText = el.children.length; });
+  const l1 = document.getElementById('l-stage-1').children.length;
+  const l2 = document.getElementById('l-stage-2').children.length;
+  document.getElementById('l-cnt-1').innerText = l1;
+  document.getElementById('l-cnt-2').innerText = l2;
+  document.getElementById('total-l-cnt').innerText = l1 + l2;
+
+  const d1 = document.getElementById('stage-1').children.length;
+  const d2 = document.getElementById('stage-2').children.length;
+  const d3 = document.getElementById('stage-3').children.length;
+  document.getElementById('d-cnt-1').innerText = d1;
+  document.getElementById('d-cnt-2').innerText = d2;
+  document.getElementById('d-cnt-3').innerText = d3;
+  document.getElementById('total-d-cnt').innerText = d1 + d2 + d3;
 }
 
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
 function toggleTaskFields(val) {
-  const disp = (val === 'Перевод в Лиды' || val === 'Перевод в Сделки') ? 'block' : 'none';
+  const disp = (val === 'To Leads' || val === 'To Deals') ? 'block' : 'none';
   document.getElementById('group-target-model').style.display = disp;
-  document.getElementById('group-target-amount').style.display = disp;
+  document.getElementById('group-target-amount').style.display = (val === 'To Deals') ? 'block' : 'none';
 }
 
 async function saveNewCompany() {
@@ -437,7 +452,7 @@ async function saveNewCompany() {
   const seasonality = document.getElementById('mc-seasonality').value;
   if(!name) return alert('Укажите название организации!');
   
-  const cRow = { id: 'C'+Date.now(), name: name, fleet: fleet, contact: contact, seasonality: seasonality, created: new Date().toISOString().split('T')[0], status: 'Активный' };
+  const cRow = { id: 'C'+Date.now(), name: name, fleet: fleet, contact: contact, seasonality: seasonality, created: new Date().toISOString().split('T')[0], status: 'Active' };
   db.companies.push(cRow);
   closeModal('company-modal');
   renderCompanies();
@@ -448,32 +463,32 @@ function openDetailsModal(item, type) {
   document.getElementById('action-item-id').value = item.id;
   document.getElementById('action-item-type').value = type;
   document.getElementById('m-task-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('m-task-type').value = 'Звонок';
-  toggleTaskFields('Звонок');
+  document.getElementById('m-task-type').value = 'Call';
+  toggleTaskFields('Call');
 
   const history = db.tasks.filter(t => String(t.deal_id) === String(item.id));
-  let historyHtml = history.map(t => `<div>• <b>${t.title}</b> (${t.due}): ${t.text || ''}</div>`).join('') || 'Запланированных касаний нет.';
+  let historyHtml = history.map(t => `<div>• <b>${t.title}</b> (${t.due}): ${t.text || ''}</div>`).join('') || 'Ближайших шагов не запланировано.';
 
   if(type === 'company') {
     document.getElementById('details-content').innerHTML = `
-      <b>Строительная компания:</b> ${item.name}<br>
-      <b>Текущий парк техники:</b> <span style="color:var(--blue); font-weight:600;">${item.fleet || '—'}</span><br>
+      <b>Организация:</b> ${item.name}<br>
+      <b>Текущий парк:</b> <span style="color:var(--blue); font-weight:600;">${item.fleet || '—'}</span><br>
       <b>Контакты ЛПР:</b> ${item.contact || '—'}<br>
-      <div style="margin-top:6px; font-size:11px; color:var(--text-m)"><b>История касаний:</b><br>${historyHtml}</div>
+      <div style="margin-top:6px; font-size:11px; color:var(--text-m)"><b>Задачи / Касания:</b><br>${historyHtml}</div>
     `;
   } else if(type === 'lead') {
     document.getElementById('details-content').innerHTML = `
-      <b>Потенциальный клиент:</b> ${item.company}<br>
-      <b>Что подбирают:</b> ${item.product || '—'}<br>
-      <b>Связь:</b> ${item.contact || '—'}<br>
-      <div style="margin-top:6px; font-size:11px; color:var(--text-m)"><b>История шагов:</b><br>${historyHtml}</div>
+      <b>Лид компании:</b> ${item.company}<br>
+      <b>Запрос на модель:</b> ${item.product || '—'}<br>
+      <b>Инфо:</b> ${item.notes || '—'}<br>
+      <div style="margin-top:6px; font-size:11px; color:var(--text-m)"><b>Задачи / Касания:</b><br>${historyHtml}</div>
     `;
   } else {
     document.getElementById('details-content').innerHTML = `
-      <b>Модель к поставке:</b> ${item.model}<br>
-      <b>Организация:</b> ${item.company}<br>
-      <b>Сумма контракта:</b> $${Number(item.amount || 0).toLocaleString()}<br>
-      <div style="margin-top:6px; font-size:11px; color:var(--text-m)"><b>Выполняемые задачи:</b><br>${historyHtml}</div>
+      <b>Модель:</b> ${item.model}<br>
+      <b>Заказчик:</b> ${item.company}<br>
+      <b>Сумма сделки:</b> $${Number(item.amount || 0).toLocaleString()}<br>
+      <div style="margin-top:6px; font-size:11px; color:var(--text-m)"><b>Задачи / Касания:</b><br>${historyHtml}</div>
     `;
   }
   openModal('details-modal');
@@ -487,59 +502,58 @@ async function savePipedriveTask() {
   const text = document.getElementById('m-task-text').value.trim();
   if(!date) return alert('Укажите дату!');
 
-  if(taskType === 'Перевод в Лиды') {
+  if(taskType === 'To Leads') {
     const comp = db.companies.find(c => c.id === id);
     if(comp) {
-      const modelName = document.getElementById('m-target-model').value.trim() || 'Спецтехника';
-      const newLead = { id: 'L'+Date.now(), company: comp.name, company_id: comp.id, contact: comp.contact, product: modelName, status: 'Новый', created: new Date().toISOString().split('T')[0] };
+      const modelName = document.getElementById('m-target-model').value.trim() || 'Hitachi';
+      const newLead = { id: 'L'+Date.now(), company: comp.name, company_id: comp.id, contact: comp.contact, product: modelName, status: 'New', created: new Date().toISOString().split('T')[0] };
       db.leads.push(newLead);
       if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'leads', row: newLead }) });
-      alert('🚀 У подрядчика зафиксирован интерес. Создан Лид во 2-й вкладке!');
     }
-  } else if(taskType === 'Перевод в Сделки') {
+  } else if(taskType === 'To Deals') {
     let compName = 'Компания';
     if(type === 'company') { const c = db.companies.find(x => x.id === id); if(c) compName = c.name; }
     else if(type === 'lead') { const l = db.leads.find(x => x.id === id); if(l) { compName = l.company; l.status = 'Converted'; if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'leads', row: l }) }); } }
     
-    const mName = document.getElementById('m-target-model').value.trim() || 'Модель техники';
+    const mName = document.getElementById('m-target-model').value.trim() || 'Hitachi';
     const amt = document.getElementById('m-target-amount').value.trim() || 0;
     
-    const newDeal = { id: 'D'+Date.now(), company: compName, company_id: id, model: mName, amount: amt, stage: 'Тех. подбор / ТХ', created: new Date().toISOString().split('T')[0] };
+    const newDeal = { id: 'D'+Date.now(), company: compName, company_id: id, model: mName, amount: amt, stage: 'Lead', created: new Date().toISOString().split('T')[0] };
     db.deals.push(newDeal);
     if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'deals', row: newDeal }) });
-    alert('🔥 Горячий запрос! Открыта активная Сделка в 3-й вкладке.');
   } else {
-    // Обычная Pipedrive задача
     const tRow = { id: 'T'+Date.now(), deal_id: id, title: taskType, text: text, due: date, done: 'false', created: new Date().toISOString().split('T')[0] };
     db.tasks.push(tRow);
     if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'tasks', row: tRow }) });
   }
 
   closeModal('details-modal');
-  loadData();
+  if(API_URL) loadData(); else renderAll();
 }
 
 async function submitLostReason() {
   const itemId = document.getElementById('lost-deal-id').value;
+  const type = document.getElementById('lost-deal-type').value;
   const competitor = document.getElementById('m-lost-competitor').value;
   const reason = document.getElementById('m-lost-reason').value.trim();
-  if(!reason) return alert('Укажите причину отправки в архив!');
+  if(!reason) return alert('Укажите причину!');
 
-  // Проверяем, это сделка или лид
-  const deal = db.deals.find(d => String(d.id) === String(itemId));
-  if(deal) {
-    deal.stage = 'Lost'; deal.competitor = competitor; deal.lost_reason = reason;
-    if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'deals', row: deal }) });
+  if(type === 'deals') {
+    const deal = db.deals.find(d => String(d.id) === String(itemId));
+    if(deal) {
+      deal.stage = 'Lost'; deal.competitor = competitor; deal.lost_reason = reason;
+      if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'deals', row: deal }) });
+    }
   } else {
     const lead = db.leads.find(l => String(l.id) === String(itemId));
     if(lead) {
-      lead.status = 'Disqualified'; lead.notes = `[Архив]: ${competitor}. Причина: ${reason}`;
+      lead.status = 'Disqualified'; lead.notes = `Конкурент: ${competitor}. Причина: ${reason}`;
       if(API_URL) await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save', name: 'leads', row: lead }) });
     }
   }
 
   closeModal('lost-modal');
-  loadData();
+  if(API_URL) loadData(); else renderAll();
 }
 </script>
 </body>
